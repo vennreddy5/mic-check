@@ -46,9 +46,12 @@ def upload():
     pptx_path = os.path.join(sdir, "deck.pptx")
     pptx_file.save(pptx_path)
 
-    slides = pptx_render.extract_slide_text(pptx_path)
-    slide_img_dir = os.path.join(sdir, "slides")
-    image_paths = pptx_render.render_slides_to_png(pptx_path, slide_img_dir)
+    try:
+        slides = pptx_render.extract_slide_text(pptx_path)
+        slide_img_dir = os.path.join(sdir, "slides")
+        image_paths = pptx_render.render_slides_to_png(pptx_path, slide_img_dir)
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse deck: {e}"}), 500
     slide_images = {i: p for i, p in enumerate(image_paths)}
 
     xlsx_summary = ""
@@ -56,7 +59,10 @@ def upload():
         xlsx_file = request.files["xlsx"]
         xlsx_path = os.path.join(sdir, "model.xlsx")
         xlsx_file.save(xlsx_path)
-        xlsx_summary = doc_parse.summarize_xlsx(xlsx_path)
+        try:
+            xlsx_summary = doc_parse.summarize_xlsx(xlsx_path)
+        except Exception as e:
+            xlsx_summary = f"(Excel model could not be parsed: {e})"
 
     context_texts = []
     for f in request.files.getlist("context"):
@@ -110,9 +116,11 @@ def upload_audio(session_id):
     audio_path = os.path.join(sdir, "recording.webm")
     audio_file.save(audio_path)
 
-    timestamps = json.loads(request.form.get("timestamps", "[]"))
-
-    result = audio_analysis.analyze(audio_path, timestamps)
+    try:
+        timestamps = json.loads(request.form.get("timestamps", "[]"))
+        result = audio_analysis.analyze(audio_path, timestamps)
+    except Exception as e:
+        return jsonify({"error": f"Audio processing failed: {e}"}), 500
     session["audio_result"] = result
 
     return jsonify(result)
@@ -124,13 +132,16 @@ def analyze(session_id):
     if not session:
         return jsonify({"error": "Unknown session"}), 404
 
-    result = claude_analysis.analyze(
-        slides=session["slides"],
-        slide_image_paths=session["slide_images"],
-        xlsx_summary=session["xlsx_summary"],
-        context_texts=session["context_texts"],
-        audio_result=session["audio_result"],
-    )
+    try:
+        result = claude_analysis.analyze(
+            slides=session["slides"],
+            slide_image_paths=session["slide_images"],
+            xlsx_summary=session["xlsx_summary"],
+            context_texts=session["context_texts"],
+            audio_result=session["audio_result"],
+        )
+    except Exception as e:
+        return jsonify({"error": f"Claude analysis failed: {e}"}), 500
     return jsonify(result)
 
 

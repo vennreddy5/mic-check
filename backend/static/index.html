@@ -12,18 +12,25 @@
   <p class="tagline">Does your deck tie to its sources? Does your talk track match your deck?</p>
 </header>
 
+<div class="step-nav" id="step-nav">
+  <button class="step-btn is-active" id="step-btn-0"><span class="step-num">1</span> Upload</button>
+  <button class="step-btn is-locked" id="step-btn-1"><span class="step-num">2</span> Present</button>
+  <button class="step-btn is-locked" id="step-btn-2"><span class="step-num">3</span> Results</button>
+</div>
+
 <main>
 
   <section id="screen-upload" class="screen">
     <h2>1. Upload your materials</h2>
     <form id="upload-form">
-      <label>
+      <label id="label-pptx">
         Deck (PPTX) <span class="required">required</span>
         <input type="file" id="input-pptx" accept=".pptx" required>
+        <span id="pptx-error" class="field-error" hidden>Upload a .pptx file to continue.</span>
       </label>
       <label>
         Supporting model (XLSX) <span class="optional">optional</span>
-        <input type="file" id="input-xlsx" accept=".xlsx">
+        <input type="file" id="input-xlsx" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
       </label>
       <label>
         Context documents (PDF/TXT) <span class="optional">optional, multiple</span>

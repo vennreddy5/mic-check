@@ -28,6 +28,35 @@ header {
 h1 { margin: 0 0 0.25rem; font-size: 1.6rem; }
 .tagline { color: var(--muted); margin: 0; }
 
+.step-nav {
+  max-width: 900px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+}
+.step-btn {
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.4rem 0.875rem;
+  background: white; border: 1px solid var(--border);
+  font-size: 0.8rem; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.step-btn:first-child { border-radius: 6px 0 0 6px; }
+.step-btn:last-child  { border-radius: 0 6px 6px 0; }
+.step-btn + .step-btn { margin-left: -1px; }
+.step-btn .step-num {
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--border); color: var(--muted);
+  font-size: 0.65rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-btn.is-active { background: #eef1fd; color: var(--accent); border-color: var(--accent); z-index: 1; }
+.step-btn.is-active .step-num { background: var(--accent); color: white; }
+.step-btn.is-locked { opacity: 0.38; cursor: not-allowed; }
+.step-btn:hover:not(.is-active):not(.is-locked) { background: var(--bg); color: var(--ink); }
+.step-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; z-index: 2; }
+
 main { max-width: 900px; margin: 0 auto; }
 
 .screen {
@@ -97,6 +126,18 @@ button:hover:not(:disabled) { filter: brightness(0.92); }
 #record-timer { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted); }
 
 .status { color: var(--muted); font-size: 0.9rem; }
+
+.field-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.3rem;
+}
+label.has-error input[type="file"] {
+  outline: 2px solid var(--danger);
+  border-radius: 3px;
+  outline-offset: 2px;
+}
 
 .slide-result {
   border: 1px solid var(--border);

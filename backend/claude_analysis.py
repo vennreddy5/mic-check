@@ -59,7 +59,14 @@ def _extract_json(text: str) -> dict:
         pass
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if match:
-        return json.loads(match.group(0))
+        try:
+            return json.loads(match.group(0))
+        except json.JSONDecodeError as exc:
+            snippet = match.group(0)[max(0, exc.pos - 60): exc.pos + 60]
+            raise ValueError(
+                f"Claude returned malformed JSON (possibly truncated — try increasing max_tokens). "
+                f"Parse error at char {exc.pos}: {exc.msg}. Near: …{snippet}…"
+            ) from exc
     raise ValueError(f"Could not parse JSON from Claude response: {text[:500]}")
 
 
@@ -119,7 +126,7 @@ def analyze(slides, slide_image_paths, xlsx_summary, context_texts, audio_result
 
     response = client.messages.create(
         model=MODEL,
-        max_tokens=4096,
+        max_tokens=16000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_content}],
     )

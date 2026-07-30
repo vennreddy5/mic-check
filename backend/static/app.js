@@ -11,12 +11,46 @@ const state = {
 
 const el = (id) => document.getElementById(id);
 
+// ── Step navigation ──
+let maxStep = 0;
+
+function updateStepNav(activeStep) {
+  [0, 1, 2].forEach(i => {
+    const btn = el(`step-btn-${i}`);
+    if (!btn) return;
+    btn.classList.toggle('is-active', i === activeStep);
+    btn.classList.toggle('is-locked', i > maxStep);
+  });
+}
+
+function goToStep(index) {
+  if (index > maxStep) return;
+  el('screen-upload').hidden  = index !== 0;
+  el('screen-present').hidden = index !== 1;
+  el('screen-results').hidden = index !== 2;
+  updateStepNav(index);
+}
+
+[0, 1, 2].forEach(i => {
+  const btn = el(`step-btn-${i}`);
+  if (btn) btn.addEventListener('click', () => goToStep(i));
+});
+
+updateStepNav(0);
+
 // ---------- Screen 1: upload ----------
 
 el("upload-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const pptx = el("input-pptx").files[0];
-  if (!pptx) return;
+  if (!pptx) {
+    el("label-pptx").classList.add("has-error");
+    el("pptx-error").hidden = false;
+    el("input-pptx").focus();
+    return;
+  }
+  el("label-pptx").classList.remove("has-error");
+  el("pptx-error").hidden = true;
 
   const form = new FormData();
   form.append("pptx", pptx);
@@ -28,18 +62,28 @@ el("upload-form").addEventListener("submit", async (e) => {
 
   try {
     const res = await fetch("/api/upload", { method: "POST", body: form });
-    if (!res.ok) throw new Error((await res.json()).error || "Upload failed");
+    if (!res.ok) {
+      let msg; try { msg = (await res.json()).error; } catch { msg = await res.text(); }
+      throw new Error(msg || "Upload failed");
+    }
     const data = await res.json();
     state.sessionId = data.session_id;
     state.slides = data.slides;
     state.currentIndex = 0;
 
-    el("screen-upload").hidden = true;
-    el("screen-present").hidden = false;
+    maxStep = Math.max(maxStep, 1);
+    goToStep(1);
     showSlide(0);
   } catch (err) {
     el("upload-status").textContent = "Error: " + err.message;
     el("btn-upload").disabled = false;
+  }
+});
+
+el("input-pptx").addEventListener("change", () => {
+  if (el("input-pptx").files[0]) {
+    el("label-pptx").classList.remove("has-error");
+    el("pptx-error").hidden = true;
   }
 });
 
@@ -122,14 +166,21 @@ async function onRecordingStopped() {
   form.append("timestamps", JSON.stringify(state.timestamps));
 
   try {
-    await fetch(`/api/upload_audio/${state.sessionId}`, { method: "POST", body: form });
+    const audioRes = await fetch(`/api/upload_audio/${state.sessionId}`, { method: "POST", body: form });
+    if (!audioRes.ok) {
+      let msg; try { msg = (await audioRes.json()).error; } catch { msg = await audioRes.text(); }
+      throw new Error(msg || "Audio upload failed");
+    }
     el("record-status").textContent = "Running the full analysis with Claude — this can take a minute…";
     const res = await fetch(`/api/analyze/${state.sessionId}`, { method: "POST" });
-    if (!res.ok) throw new Error((await res.json()).error || "Analysis failed");
+    if (!res.ok) {
+      let msg; try { msg = (await res.json()).error; } catch { msg = await res.text(); }
+      throw new Error(msg || "Analysis failed");
+    }
     const results = await res.json();
     renderResults(results);
-    el("screen-present").hidden = true;
-    el("screen-results").hidden = false;
+    maxStep = Math.max(maxStep, 2);
+    goToStep(2);
   } catch (err) {
     el("record-status").textContent = "Error: " + err.message;
     el("btn-record").disabled = false;
