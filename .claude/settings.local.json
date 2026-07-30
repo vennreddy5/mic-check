@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(pandoc -t markdown \"C:\\\\Users\\\\vreddy5\\\\OneDrive - Deloitte \\(O365D\\)\\\\Desktop\\\\claude-build-week\\\\LetsClaudeChallenge_BuildWeek_Brief.docx\")",
+      "Bash(mkdir -p /tmp/brief_extract)",
+      "Bash(unzip -o -q \"C:\\\\Users\\\\vreddy5\\\\OneDrive - Deloitte \\(O365D\\)\\\\Desktop\\\\claude-build-week\\\\LetsClaudeChallenge_BuildWeek_Brief.docx\" -d /tmp/brief_extract)",
+      "Read(//tmp/brief_extract/**)",
+      "Bash(python3 -c ' *)",
+      "Bash(find / -maxdepth 3 -iname \"brief_extract\" 2>/dev/null; pwd)"
+    ]
+  }
+}

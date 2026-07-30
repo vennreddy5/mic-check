@@ -1,0 +1,10 @@
+flask
+python-pptx
+openpyxl
+pywin32
+pypdf
+faster-whisper
+librosa
+soundfile
+anthropic
+python-dotenv

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Talk Track Checker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Talk Track Checker</h1>
+  <p class="tagline">Does your deck tie to its sources? Does your talk track match your deck?</p>
+</header>
+
+<main>
+
+  <section id="screen-upload" class="screen">
+    <h2>1. Upload your materials</h2>
+    <form id="upload-form">
+      <label>
+        Deck (PPTX) <span class="required">required</span>
+        <input type="file" id="input-pptx" accept=".pptx" required>
+      </label>
+      <label>
+        Supporting model (XLSX) <span class="optional">optional</span>
+        <input type="file" id="input-xlsx" accept=".xlsx">
+      </label>
+      <label>
+        Context documents (PDF/TXT) <span class="optional">optional, multiple</span>
+        <input type="file" id="input-context" accept=".pdf,.txt" multiple>
+      </label>
+      <button type="submit" id="btn-upload">Continue</button>
+    </form>
+    <p id="upload-status" class="status"></p>
+  </section>
+
+  <section id="screen-present" class="screen" hidden>
+    <h2>2. Walk through your deck out loud</h2>
+    <p class="hint">Hit Record, present the deck, use Next/Prev as you go — that's all the timing info we need. Hit Stop when you're done.</p>
+
+    <div class="slide-viewer">
+      <img id="slide-image" alt="Slide">
+      <div class="slide-nav">
+        <button id="btn-prev">&larr; Prev</button>
+        <span id="slide-counter"></span>
+        <button id="btn-next">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="record-controls">
+      <button id="btn-record">&#9679; Record</button>
+      <button id="btn-stop" disabled>&#9632; Stop</button>
+      <span id="record-timer">00:00</span>
+    </div>
+    <p id="record-status" class="status"></p>
+  </section>
+
+  <section id="screen-results" class="screen" hidden>
+    <h2>3. Results</h2>
+    <div id="results-content"></div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
