@@ -16,6 +16,7 @@ from faster_whisper import WhisperModel
 from faster_whisper.audio import decode_audio
 
 SR = 16000
+PITCH_HOP_LENGTH = 512
 FILLER_WORDS = {"um", "uh", "umm", "uhh", "like", "you know", "sort of", "kind of", "basically", "actually"}
 
 
@@ -55,26 +56,38 @@ def _count_fillers(text: str) -> int:
     return count
 
 
-def _delivery_metrics_for_range(audio: np.ndarray, words: list[dict], pauses: list[tuple],
+def _pitch_and_volume_curves(audio: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run pitch + volume analysis once for the whole track. Callers slice the result by
+    time range instead of each re-running pyin on their own sub-clip -- pyin is the
+    expensive part, and running it per-slide plus once more for "overall" was redundant."""
+    f0, _, _ = librosa.pyin(
+        audio, fmin=librosa.note_to_hz("C2"), fmax=librosa.note_to_hz("C6"),
+        sr=SR, hop_length=PITCH_HOP_LENGTH,
+    )
+    rms = librosa.feature.rms(y=audio, hop_length=PITCH_HOP_LENGTH)[0]
+    n = min(len(f0), len(rms))
+    f0, rms = f0[:n], rms[:n]
+    times = librosa.times_like(f0, sr=SR, hop_length=PITCH_HOP_LENGTH)
+    return times, f0, rms
+
+
+def _delivery_metrics_for_range(words: list[dict], pauses: list[tuple],
+                                 curve_times: np.ndarray, f0: np.ndarray, rms: np.ndarray,
                                  start: float, end: float) -> dict:
     span_words = [w for w in words if start <= w["start"] < end]
     text = " ".join(w["word"] for w in span_words).strip()
     duration_min = max((end - start) / 60.0, 1e-6)
     wpm = len(span_words) / duration_min
 
-    lo, hi = int(start * SR), min(int(end * SR), len(audio))
-    clip = audio[lo:hi] if hi > lo else np.array([], dtype=np.float32)
+    frame_mask = (curve_times >= start) & (curve_times < end)
 
-    avg_rms = float(np.mean(librosa.feature.rms(y=clip)[0])) if clip.size else 0.0
+    rms_slice = rms[frame_mask]
+    avg_rms = float(np.mean(rms_slice)) if rms_slice.size else 0.0
 
-    pitch_vals = []
-    if clip.size >= SR * 0.2:
-        f0, voiced_flag, _ = librosa.pyin(
-            clip, fmin=librosa.note_to_hz("C2"), fmax=librosa.note_to_hz("C6"), sr=SR
-        )
-        pitch_vals = f0[~np.isnan(f0)].tolist() if f0 is not None else []
-    avg_pitch = float(np.mean(pitch_vals)) if pitch_vals else 0.0
-    pitch_std = float(np.std(pitch_vals)) if pitch_vals else 0.0
+    voiced = f0[frame_mask]
+    voiced = voiced[~np.isnan(voiced)]
+    avg_pitch = float(np.mean(voiced)) if voiced.size else 0.0
+    pitch_std = float(np.std(voiced)) if voiced.size else 0.0
 
     span_pauses = [p for p in pauses if start <= p[0] < end]
     pause_count = len(span_pauses)
@@ -114,6 +127,7 @@ def analyze(audio_path: str, slide_timestamps: list[dict]) -> dict:
     data = transcribe(audio_path)
     audio, duration, words = data["audio"], data["duration"], data["words"]
     pauses = compute_pauses(audio)
+    curve_times, f0, rms = _pitch_and_volume_curves(audio)
 
     marks = sorted(slide_timestamps, key=lambda m: m["timestamp"])
     if not marks:
@@ -123,9 +137,9 @@ def analyze(audio_path: str, slide_timestamps: list[dict]) -> dict:
     for i, mark in enumerate(marks):
         start = mark["timestamp"]
         end = marks[i + 1]["timestamp"] if i + 1 < len(marks) else duration
-        metrics = _delivery_metrics_for_range(audio, words, pauses, start, end)
+        metrics = _delivery_metrics_for_range(words, pauses, curve_times, f0, rms, start, end)
         per_slide.append({"slide_index": mark["slideIndex"], "start": round(start, 1),
                            "end": round(end, 1), **metrics})
 
-    overall = _delivery_metrics_for_range(audio, words, pauses, 0.0, duration)
+    overall = _delivery_metrics_for_range(words, pauses, curve_times, f0, rms, 0.0, duration)
     return {"duration": round(duration, 1), "overall": overall, "per_slide": per_slide}
