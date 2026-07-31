@@ -6,5 +6,6 @@ pypdf
 faster-whisper
 librosa
 soundfile
+truststore
 anthropic
 python-dotenv
