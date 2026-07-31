@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200">
+  <defs>
+    <linearGradient id="micGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C5CFF"/>
+      <stop offset="100%" stop-color="#00C2D1"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(-12,34)">
+    <rect x="62" y="116" width="36" height="8" rx="4" fill="url(#micGrad)"/>
+    <rect x="76" y="94" width="8" height="22" rx="4" fill="url(#micGrad)"/>
+    <path d="M52 70 A28 28 0 0 0 108 70" fill="none" stroke="url(#micGrad)" stroke-width="6" stroke-linecap="round"/>
+    <rect x="60" y="12" width="40" height="64" rx="20" fill="url(#micGrad)"/>
+    <line x1="64" y1="32" x2="96" y2="32" stroke="#ffffff" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round"/>
+    <line x1="64" y1="46" x2="96" y2="46" stroke="#ffffff" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round"/>
+    <line x1="64" y1="60" x2="96" y2="60" stroke="#ffffff" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="26" r="18" fill="#22D3A5" stroke="#ffffff" stroke-width="3"/>
+    <path d="M91 27 L98 34 L111 17" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="140" y="118" font-family="'Segoe UI', Arial, sans-serif" font-size="64" font-weight="700">
+    <tspan fill="#1A1A2E">Mic</tspan><tspan fill="#16A085">-Check</tspan>
+  </text>
+</svg>
