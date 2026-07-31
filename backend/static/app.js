@@ -207,18 +207,24 @@ function renderResults(data) {
     const div = document.createElement("div");
     div.className = "slide-result";
 
-    const flagsHtml = (slide.consistency_flags || [])
+    const severityOrder = { high: 0, medium: 1, low: 2 };
+    const sortedFlags = [...(slide.consistency_flags || [])].sort(
+      (a, b) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3)
+    );
+
+    const flagsHtml = sortedFlags
       .map(
         (f) => `<div class="flag ${f.severity || ""}">
           <strong>${escapeHtml(f.claim || "")}</strong> — ${escapeHtml(f.issue || "")}
           <div class="metrics-row"><span class="metric-chip">${escapeHtml(f.source || "")}</span>
-          <span class="metric-chip">${escapeHtml(f.severity || "")}</span></div>
+          <span class="metric-chip severity-chip ${f.severity || ""}">${escapeHtml(f.severity || "")}</span></div>
         </div>`
       )
       .join("");
 
     div.innerHTML = `
       <h3>Slide ${slide.slide_index + 1}</h3>
+      <div class="section-label">Consistency issues</div>
       ${flagsHtml || "<p class='status'>No consistency issues flagged.</p>"}
       <div class="section-label">Narrative</div>
       <p>${escapeHtml(slide.narrative_notes || "")}</p>

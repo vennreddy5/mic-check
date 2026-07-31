@@ -141,23 +141,56 @@ label.has-error input[type="file"] {
 
 .slide-result {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
+  border-radius: 10px;
+  padding: 0 1.25rem 1.25rem;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
 
-.slide-result h3 { margin: 0 0 0.5rem; }
+/* Full-width header strip — breaks out of the card's side padding */
+.slide-result h3 {
+  margin: 0 -1.25rem 1rem;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: #fff;
+}
+
+/* The very first card (Overall) gets the accent colour instead */
+.slide-result:first-child h3 {
+  background: var(--accent);
+}
+
+/* First section-label directly after a card header — collapse the gap and drop the top rule */
+.slide-result h3 + .section-label {
+  margin-top: -1rem;
+  border-top: none;
+}
 
 .flag {
-  border-left: 3px solid var(--warn);
-  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  border-radius: 0 6px 6px 0;
+  padding: 0.65rem 0.875rem;
   margin: 0.4rem 0;
-  background: #fff8ec;
+  background: #fff;
   font-size: 0.9rem;
+  line-height: 1.55;
 }
 
-.flag.high { border-color: var(--danger); background: #fdecec; }
-.flag.low { border-color: var(--muted); background: #f3f4f6; }
+.flag.high { border-left-color: var(--danger); background: #fef9f9; }
+.flag.medium { border-left-color: var(--warn); }
+.flag.low  { border-left-color: var(--muted); }
+
+/* Severity chip colour variants */
+.severity-chip { font-weight: 600; text-transform: capitalize; }
+.severity-chip.high   { background: #fde8e8; color: var(--danger); }
+.severity-chip.medium { background: #fef3e2; color: var(--warn);   }
+.severity-chip.low    { background: #f0f0f3; color: var(--muted);  }
 
 .metrics-row {
   display: flex;
@@ -174,10 +207,15 @@ label.has-error input[type="file"] {
   color: var(--muted);
 }
 
+/* Sub-section divider — breaks out to full card width, creates a ruled separator */
 .section-label {
   text-transform: uppercase;
   font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  margin: 0.75rem 0 0.15rem;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 1rem -1.25rem 0.6rem;
+  padding: 0.55rem 1.25rem 0.35rem;
+  border-top: 1px solid var(--border);
+  background: #f7f8fa;
 }
