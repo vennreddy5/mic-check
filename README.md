@@ -32,6 +32,45 @@
 
 ---
 
+## 🚀 Getting Started
+
+### Prerequisites
+- **Windows**, with a licensed, installed copy of **Microsoft PowerPoint** — slide rendering drives PowerPoint directly via COM automation, so this can't be `pip install`ed away.
+- **Python 3.11+** on your `PATH`.
+- An **Anthropic API key** — ask Venn or Thomas for one internally; it's not checked into this repo.
+
+> First-time use of the rehearsal review flow downloads a small Whisper speech-to-text model from Hugging Face, so make sure you have internet access (through the corporate proxy is fine) the first time you record a rehearsal.
+
+### Option A — Manual setup
+1. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+2. Copy `backend\.env.example` to `backend\.env` and paste in your Anthropic API key:
+   ```
+   ANTHROPIC_API_KEY=your-key-here
+   ```
+3. Run the app and open it in your browser:
+   ```bash
+   python backend\app.py
+   ```
+   Then go to **http://localhost:5000**.
+
+### Option B — Scripted setup
+Two PowerShell scripts at the repo root do the above for you:
+
+```bash
+.\install.ps1   # run once — creates a venv, installs dependencies, prompts for your API key
+.\start.ps1     # run each time you want to use the app — opens the browser automatically
+```
+
+If PowerShell blocks the scripts from running (execution policy), use:
+```bash
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+---
+
 ## 🎙️ Why Mic Check?
 *Purpose & What it Does*
 
